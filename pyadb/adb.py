@@ -98,7 +98,7 @@ class ADB:
         # Command in 'list' format: Thanks to Gil Rozenberg for reporting
         # the issue
         #
-        target_param_part = ["-s", target] if target else []
+        target_param_part = ["-t", target] if target else []
         cmd_part = [cmd] if not isinstance(cmd, list) else cmd
 
         full_cmd = [ADB._adb_path] + target_param_part + cmd_part
@@ -252,9 +252,10 @@ class ADB:
         mode serial/usb
         """
         cls._devices = None
-        output = cls._output_if_no_error(cls.run_cmd_c("devices"))
+        output = cls._output_if_no_error(cls.run_cmd_c(["devices", "-l"]))
         try:
-            cls._devices = [x.split()[0] for x in output[1:]]
+            cls._devices = [x.split()[6][13:] for x in
+                            [y for y in output[1:] if "usb" in y]]
 
         except Exception as err:
             # ToDo: Limit this except-clause to the specific exception.
